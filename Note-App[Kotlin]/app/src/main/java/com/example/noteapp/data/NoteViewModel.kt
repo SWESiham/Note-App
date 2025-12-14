@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class NoteViewModel(application: Application) : AndroidViewModel(application){
-    private val database = NoteDatabase.getInstance(application)
-    private val dao = database.noteDao()
+class NoteViewModel(application: Application,private val dao: NotesDao) : AndroidViewModel(application){
+//    private val database = NoteDatabase.getInstance(application)
+//    private val dao = database.noteDao()
     val notes = dao.getAllNotes().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
