@@ -9,7 +9,8 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.noteapp.data.NoteViewModel
 import com.example.noteapp.screens.AddNoteScreen
-import com.example.noteapp.screens.MainScreen  // Add this import
+import com.example.noteapp.screens.MainScreen
+import com.example.noteapp.screens.SplashScreen
 import com.example.noteapp.ui.theme.NoteAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,25 +19,43 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             NoteAppTheme {
-                // Get ViewModel
                 val viewModel: NoteViewModel = viewModel()
+                var currentScreen by remember { mutableStateOf("splash") }
+                var selectedNoteId by remember { mutableIntStateOf(-1) }
 
-                // Track which screen to show
-                var currentScreen by remember { mutableStateOf("main") }  // Start with MainScreen
-
-                // Show different screens based on state
                 when (currentScreen) {
+                    "splash" -> {
+                        SplashScreen(onTimeout = {
+                            currentScreen = "main"
+                        })
+                    }
                     "add" -> {
-                        // Your friend's AddNoteScreen for creating new notes
                         AddNoteScreen(
                             viewModel = viewModel,
-                            onBack = { currentScreen = "main" }  // Fixed: added onBack parameter
+                            onBack = { currentScreen = "main" }
                         )
                     }
+                    "edit" -> {
+                        if (selectedNoteId != -1) {
+                            AddNoteScreen(
+                                viewModel = viewModel,
+                                noteId = selectedNoteId,
+                                onBack = {
+                                    currentScreen = "main"
+                                    selectedNoteId = -1
+                                }
+                            )
+                        } else {
+                            currentScreen = "main"
+                        }
+                    }
                     "main" -> {
-                        // Your MainScreen (shows list of notes)
                         MainScreen(
                             onAddNoteClick = { currentScreen = "add" },
+                            onEditNoteClick = { id ->
+                                selectedNoteId = id
+                                currentScreen = "edit"
+                            },
                             viewModel = viewModel
                         )
                     }
